@@ -12,7 +12,7 @@
 #include "vars.h"
 #include "zlog.h"
 #include "utils.h"
-
+#include "KISA_SHA256.h"
 
 int server = -1, client = -1, running = 0;
 pid_t forkpid = 1;
@@ -84,10 +84,13 @@ void handle_session(int client) {
     uint32_t restdata = 0;
     char rnfr[BUF_SIZE];
     char *p;            // tmp file path
+	int hash_len =64;
+	unsigned char *hash_pass;	// hash password
     struct stat file_stat;      // file stat for time and size
     struct tm mdtime;
 	FILE *user, *pass;
 	char temp[BUF_SIZE];
+	unsigned char u_temp[BUF_SIZE];
 	int user_line = 0;
 	/* 클라이언트에게서 신호를 받았을 때 작동.
 	 * 신호가 없을 때 까지 무한반복한다.
@@ -151,9 +154,16 @@ void handle_session(int client) {
             case PASS:
 				p = parse_path(buf);
 				user_line = strlen(p);
+				//암호화된 해시값이 들어갈 변수를 동적할당 해준다.
+				hash_pass = (unsigned char *)malloc(hash_len * sizeof(unsigned char));
+				//SHA-256으로 암호화한 PASSWORD를 변수에 저장한다.
+				SHA256_Encrpyt(p, user_line, hash_pass);
+				user_line = strtol(hash_pass, NULL, 16);
 				pass = fopen("pass.txt", "r");
-				fgets(temp, BUF_SIZE, pass);
-				if (!strncmp(p, temp, user_line))
+				//fputs(hash_pass, pass);
+				fgets(u_temp, BUF_SIZE, pass);
+				printf("\nhash_pass : %s \ntemp : %s	%d\n", hash_pass,u_temp,user_line);
+				if (!strncmp(hash_pass,u_temp, hash_len))
 				{
 					send_str(client, FTP_LOGIN);
 					info(1, "pass name ok!");

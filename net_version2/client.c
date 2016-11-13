@@ -130,8 +130,15 @@ int main(int argc, char *argv[]) {
         }
 		//서버에게 받은 메세지 출력  6
         n = recv(client, buf, BUF_SIZE, 0);
+		if (strcmp(buf, FTP_LOGIN_FAIL))
+		{
+			printf("1234");
+			if (state == ST_PASS)
+			{
+				state = ST_NONE;
+			}
+		}
         buf[n] = 0;
-		printf("33\n");
         printf("%s", buf);
         fflush(stdout);
 		/* 모름! 교수님 설명부탁드려요!*/
