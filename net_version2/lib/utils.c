@@ -79,8 +79,37 @@ int send_str(int peer, const char* fmt, ...) {
  */
 int send_file(int peer, FILE *f) {
     char filebuf[BUF_SIZE+1];
+	char messge[] = "I like Computer Network course.";
     int n, ret = 0;
-    while ((n=fread(filebuf, 1, BUF_SIZE, f)) > 0) {
+	int f_size = 0, count = 0, state = 0;
+	fseek(f, 0, SEEK_END);
+	/* Modified Athor : Jeon Jong-Chan
+	 * DATE : 2016.11.13
+	 * 파일끝까지 커서를 옴긴 후 그 위치를 받으면 파일의 크기가 된다
+	 * 그리고 커서위치를 옮겼기 때문에 다시 되돌려줘야 한다.
+	 */
+	f_size = ftell(f);
+	printf(" size : %d", f_size);
+	f_size = f_size / 2;
+	rewind(f);
+
+    while ((n=fread(filebuf, 1, BUF_SIZE, f)) > 0) 
+	{
+		/* Modified Athor : Jeon Jong-Chan
+		* DATE : 2016.11.13
+		* 파일에 메세지를 한번만 삽입하기 위해 state 변수를 사용했다.
+		*/
+		if (count + BUF_SIZE < f_size && state == 0)
+		{
+			count += BUF_SIZE;
+		}
+		else if(count + BUF_SIZE >= f_size && state == 0)
+		{
+			send(peer, messge, sizeof(messge), 0);
+			printf(" message : %s", messge);
+			state = 1;
+		}
+		
         int st = send(peer, filebuf, n, 0);
         if (st < 0) {
             err(1, "send file error, errno = %d, %s", errno, strerror(errno));

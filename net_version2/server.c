@@ -13,7 +13,6 @@
 #include "zlog.h"
 #include "utils.h"
 
-
 int server = -1, client = -1, running = 0;
 pid_t forkpid = 1;
 char buf[BUF_SIZE];
@@ -130,9 +129,7 @@ void handle_session(int client) {
                 send_str(client, FTP_HELP);
                 break;
             case USER:
-				//명령어와 함께 받은 ID를 분리해서 변수 p에 저장한다.
 				p = parse_path(buf);
-				//정확한 비교를 위해 데이터의 길이를 저장한다.
 				user_line = strlen(p);		
 				user = fopen("user.txt", "r");
 				fgets(temp, BUF_SIZE, user);
