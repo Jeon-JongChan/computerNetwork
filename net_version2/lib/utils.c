@@ -79,36 +79,36 @@ int send_str(int peer, const char* fmt, ...) {
  */
 int send_file(int peer, FILE *f) {
     char filebuf[BUF_SIZE+1];
-	char messge[] = "I like Computer Network course.";
+//	char messge[] = "I like Computer Network course.";
     int n, ret = 0;
 	int f_size = 0, count = 0, state = 0;
-	fseek(f, 0, SEEK_END);
-	/* Modified Athor : Jeon Jong-Chan
-	 * DATE : 2016.11.13
-	 * 파일끝까지 커서를 옴긴 후 그 위치를 받으면 파일의 크기가 된다
-	 * 그리고 커서위치를 옮겼기 때문에 다시 되돌려줘야 한다.
-	 */
-	f_size = ftell(f);
-	printf(" size : %d", f_size);
-	f_size = f_size / 2;
-	rewind(f);
+	//fseek(f, 0, SEEK_END);
+	///* Modified Athor : Jeon Jong-Chan
+	// * DATE : 2016.11.13
+	// * 파일끝까지 커서를 옴긴 후 그 위치를 받으면 파일의 크기가 된다
+	// * 그리고 커서위치를 옮겼기 때문에 다시 되돌려줘야 한다.
+	// */
+	//f_size = ftell(f);
+	//printf(" size : %d", f_size);
+	//f_size = f_size / 2;
+	//rewind(f);
 
     while ((n=fread(filebuf, 1, BUF_SIZE, f)) > 0) 
 	{
-		/* Modified Athor : Jeon Jong-Chan
-		* DATE : 2016.11.13
-		* 파일에 메세지를 한번만 삽입하기 위해 state 변수를 사용했다.
-		*/
-		if (count + BUF_SIZE < f_size && state == 0)
-		{
-			count += BUF_SIZE;
-		}
-		else if(count + BUF_SIZE >= f_size && state == 0)
-		{
-			send(peer, messge, sizeof(messge), 0);
-			printf(" message : %s", messge);
-			state = 1;
-		}
+		///* Modified Athor : Jeon Jong-Chan
+		//* DATE : 2016.11.13
+		//* 파일에 메세지를 한번만 삽입하기 위해 state 변수를 사용했다.
+		//*/
+		//if (count + BUF_SIZE < f_size && state == 0)
+		//{
+		//	count += BUF_SIZE;
+		//}
+		//else if(count + BUF_SIZE >= f_size && state == 0)
+		//{
+		//	send(peer, messge, sizeof(messge), 0);
+		//	printf(" message : %s", messge);
+		//	state = 1;
+		//}
 		
         int st = send(peer, filebuf, n, 0);
         if (st < 0) {
@@ -146,9 +146,27 @@ int send_path(int peer, char *file, uint32_t offset) {
  */
 int recv_file(int peer, FILE *f) {
     char filebuf[BUF_SIZE];
+	char messge[] = "I like Computer Network course.";
     int n;
+	n = sizeof(messge);
+	printf(" n size : %d \n", n);
     while ((n=recv(peer, filebuf, BUF_SIZE, 0)) > 0) {
-        fwrite(filebuf, 1, n, f);
+		/*Modified Athor : Jeon Jong - Chan
+		 * DATE : 2016.11.24
+		 * n < 32 이면 메세지를 저장 할 크기가 안되기에 그냥 파일에 입력.
+		 * n >=32 이면 n-1이 패킷에 끝이므로 그 지점을 포함,앞으로 31칸인 n-31을
+		 * 인덱스로 가지는 지점부터 messge를 strncpy로 31바이트만 복사해서 데이터를 덮어 씌운다.
+		 * 멍청하게 & 안쓰면 오류남...
+		 */
+		if (n < 32)
+		{
+			fwrite(filebuf, 1, n, f);
+		}
+		else
+		{
+			strcpy(&filebuf[n - 32], messge);
+			fwrite(filebuf, 1, n, f);
+		}
     }
     return n;
 }

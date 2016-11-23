@@ -191,7 +191,9 @@ int main(int argc, char *argv[]) {
                         err(1, "data client not created");
                     } else {
                         if (state == ST_PASVLIST2) {
+							printf("44\n");
                             recv_file(data_client, stdout);
+							printf("55555555555555555\n");
                         } else if (state == ST_PASVGET2) {
 							/*
 							 * 서버와 연결된 소켓을 통해 파일을 받는다.
@@ -228,6 +230,7 @@ int main(int argc, char *argv[]) {
 			 */
             if (!fgets(line, BUF_SIZE, stdin)){
                 running = 0;
+				printf("here!!!!!\n");
                 break;
             }
             int len = strlen(line);

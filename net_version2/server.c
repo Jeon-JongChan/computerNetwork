@@ -94,6 +94,7 @@ void handle_session(int client) {
 	printf("5");
     while ((n=recv(client, buf, BUF_SIZE, MSG_PEEK)) > 0) {
         if (!running) break;
+		printf("524242");
         buf[n] = '\0';
         //info(1, "recved %d bytes: %s", n, buf);
         for (i=0; i<n; i++) {
@@ -526,7 +527,9 @@ void handle_session(int client) {
                 send_str(client, FTP_CMDNOIM);
                 break;
         }
+		printf("77777777777777777777\n");
         if (!running) break;
+		printf("8888888888888888888\n");
     }
     info(1, "exiting session ...");
     int st = close(client);
@@ -549,6 +552,7 @@ int main(int argc, char *argv[]){
     signal(SIGCHLD, SIG_IGN);   // ignore child termination signal
     signal(SIGINT, ouch);       // catch Ctrl-C 
     signal(SIGTERM, ouch);
+	printf(" number 1 \n");
 	/*
 	 * new_server 함수는 utils.c에 정의된 함수. 소켓을 생성하고 listen 상태로 만듬. 1
 	 */
